@@ -1,0 +1,27 @@
+CAM output for current project RelayCircuit.T3001
+Output on 09. Aug 2022, 19:44h
+Current project created using TARGET 13.4.0.51 smart
+Output created using PCBout V13.4.0.51
+DELIVERY ADDRESS:
+  
+  
+  
+  GB- 
+  Tel: 
+  FAX: 
+  eMail: 
+Size of PCB: 50.145 mm x 27.61 mm
+
+Description of created files as follows:
+
+RelayCircuit.Top = 16 = Copper top L2   ( *.Top )
+RelayCircuit.Bot = 2 = Copper bottom L1   ( *.Bot )
+RelayCircuit.Tool = drill tool list
+RelayCircuit.Drill = Galvanised drills
+RelayCircuit.Outline = 23 = PCB outline   ( *.Outline )
+RelayCircuit.StopTop = 18 = Solder stop mask top   ( *.StopTop )
+RelayCircuit.StopBot = 4 = Solder stop mask bottom   ( *.StopBot )
+RelayCircuit.PosiTop = 21 = Placement print top   ( *.PosiTop )
+RelayCircuit.Apr = TARGET 3001! aperture list
+RelayCircuit.Whl = Eagle compatible aperture list
+
