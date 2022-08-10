@@ -305,15 +305,15 @@ void NRF_Broadcast() {
   DataEncrypt_Other();
   //Serial.print(ch_message);
   radio.write(&ch_message, sizeof(ch_message));
-  delay(5);
-  radio.write(&ch_message, sizeof(ch_message));
-  delay(5);
-  radio.write(&ch_message, sizeof(ch_message));
+  //  delay(5);
+  //  radio.write(&ch_message, sizeof(ch_message));
+  //  delay(5);
+  //  radio.write(&ch_message, sizeof(ch_message));
 }
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((millis() - last_millis) >= 75) {
+  if ((millis() - last_millis) >= 60) {
     last_millis = millis();
     TimeMil--;
     SC_mil--;
