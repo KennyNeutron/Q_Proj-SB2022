@@ -7,9 +7,9 @@
 RF24 radio(9, 10); // CE, CSN
 const byte address[6] = "00001";
 
-#define ser   2   //d_in
-#define rclk  4   //lat
-#define srclk 5   //clk
+#define ser   5   //d_in
+#define rclk  7   //lat
+#define srclk 6   //clk
 
 
 void setup() {
@@ -48,7 +48,12 @@ void loop() {
     if(text[0]=='A' && text[6]=='B'){
       int val_sc=int(text[4]);
       int sc_ones=val_sc%10;
-      printSEG(sc_ones);
+      
+      int sc_millis=int(text[5]);
+
+      Serial.println("MS:"+String(sc_millis));
+      printSEG(sc_millis);
+
     }
 
 

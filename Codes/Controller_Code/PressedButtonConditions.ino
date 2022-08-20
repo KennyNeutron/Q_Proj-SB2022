@@ -24,10 +24,10 @@ ss_exit:
     }
     ms_counter = 0;
   } else if (StartStop_IsPressed == true && !status_shift() && !flag_start && !flag_ChangeMenuToggle) {
-    if(!status_StartStop()){
+    if (!status_StartStop()) {
       ms_counter++;
-    }else{
-      ms_counter=0;
+    } else {
+      ms_counter = 0;
     }
     //Serial.println("SS:" + String(ms_counter));
     //Serial.println("SS_IsPressed:" + String(StartStop_IsPressed));
@@ -98,7 +98,7 @@ void con_Buzzer() {
       }
     } else {
       ms_buzzer = 0;
-      tone(buzzer, 1000);
+      //tone(buzzer, 1000);
     }
 
   }
@@ -107,7 +107,7 @@ void con_Buzzer() {
     ms_buzzer = 0;
     buzzer_IsPressed = false;
     flag_NewGame = false;
-    noTone(buzzer);
+    //noTone(buzzer);
   }
 }
 
@@ -151,6 +151,42 @@ void con_GuestFoul() {
   }
 }
 
+
+//Home TOut Button is Pressed
+void con_HTout() {
+  if (HTout_IsPressed == true && !flag_HToutToggle) {
+    if (!status_shift()) {
+      HomeTout--;
+    } else {
+      HomeTout++;
+    }
+    flag_HToutToggle = true;
+
+    if (HomeTout >= 10 && HomeTout != 255) {
+      HomeTout = 9;
+    } else if (HomeTout == 255) {
+      HomeTout = 0;
+    }
+  }
+}
+
+//Guest TOut Button is Pressed
+void con_GTout() {
+  if (GTout_IsPressed == true && !flag_GToutToggle) {
+    if (!status_shift()) {
+      GuestTout--;
+    } else {
+      GuestTout++;
+    }
+    flag_GToutToggle = true;
+
+    if(GuestTout>=10 && GuestTout!=255){
+      GuestTout=9;
+    }else if(GuestTout==255){
+      GuestTout=0;
+    }
+  }
+}
 
 
 //HomeScore Button is Pressed

@@ -58,6 +58,20 @@ void buttonUpdate() {
     flag_BallPosToggle = false;
   }
 
+  if(!status_HTout() && !flag_HToutToggle){
+    HTout_IsPressed=true;
+  }else if(status_HTout()){
+    HTout_IsPressed=false;
+    flag_HToutToggle=false;
+  }
+
+  if(!status_GTout() && !flag_GToutToggle){
+    GTout_IsPressed=true;
+  }else if(status_GTout()){
+    GTout_IsPressed=false;
+    flag_GToutToggle=false;
+  }
+
 }
 
 
@@ -75,6 +89,14 @@ bool status_HFoul() {
 
 bool status_GFoul() {
   return digitalRead(pb_GFoul);
+}
+
+bool status_HTout(){
+  return digitalRead(pb_HTout);
+}
+
+bool status_GTout(){
+  return digitalRead(pb_GTout);
 }
 
 bool status_HScore() {

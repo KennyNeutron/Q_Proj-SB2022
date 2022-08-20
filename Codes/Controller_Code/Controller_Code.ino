@@ -12,8 +12,8 @@ const byte address[6] = "00001";
 
 #include "U8glib.h"
 
-U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST);	// Fast I2C / TWI
-
+//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST);	// Fast I2C / TWI
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 //#define u8g_logo_width 38
 //#define u8g_logo_height 24
 ////static unsigned char u8g_logo_bits[] = {
@@ -40,8 +40,11 @@ U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_F
 #define pb_StartStop  A2
 #define pb_BallPos    A3
 
+#define pb_HTout      2
+#define pb_GTout      3
+
 //Outputs
-#define buzzer 3
+//#define buzzer 3
 
 bool buzzer_IsPressed = false;
 bool HFoul_IsPressed = false;
@@ -51,6 +54,9 @@ bool GScore_IsPressed = false;
 bool ShotClock_IsPressed = false;
 bool StartStop_IsPressed = false;
 bool BallPos_IsPressed = false;
+
+bool HTout_IsPressed=false;
+bool GTout_IsPressed=false;
 
 bool WINNER = true; //true= HOME WINNER     false= GUEST WINNER     NOTE: only if the game is doene
 bool winner_avail = false; //goes true if a winner is declared;
@@ -71,6 +77,9 @@ byte GuestScore = 0; //GuestScore
 byte HomeFoul = 0; //HomeFoul
 byte GuestFoul = 0; //GuestFoul
 
+byte HomeTout = 0; //Home TimeOut
+byte GuestTout=0; // Guest TimeOut
+
 byte period = 1; //Period or Quarter
 
 byte BallPos = 0; //BallPosession 0=NoPossession 1=Home 2=Guest
@@ -90,6 +99,9 @@ bool flag_BallPosToggle = false;
 bool flag_ChangeMenuToggle = false;
 bool flag_WinnerBlink = false;
 bool flag_NewGame = false;
+
+bool flag_HToutToggle=false;
+bool flag_GToutToggle=false;
 
 
 
@@ -151,12 +163,15 @@ void setup() {
   pinMode(pb_StartStop, INPUT_PULLUP);
   pinMode(pb_BallPos, INPUT_PULLUP);
 
-  pinMode(buzzer, OUTPUT);
+  pinMode(pb_HTout, INPUT_PULLUP);
+  pinMode(pb_GTout, INPUT_PULLUP);
+
+  //pinMode(buzzer, OUTPUT);
   delay(10);
 
-  tone(buzzer, 1000);
+  //tone(buzzer, 1000);
   delay(500);
-  noTone(buzzer);
+  //noTone(buzzer);
 
 
   //Serial.println("START");
@@ -165,7 +180,7 @@ void setup() {
 
 void loop() {
   if (SC_sec == 0 && SC_mil == 0 && flag_SCDisplayed == true && !flag_QFinishToggle && !winner_avail) {
-    tone(buzzer, 1000);
+    //tone(buzzer, 1000);
     buzz = true;
     flag_SCDisplayed = false;
     SC_sec = 24;
@@ -175,7 +190,7 @@ void loop() {
         delay(100);
         NRF_Broadcast();
       }
-      noTone(buzzer);
+      //noTone(buzzer);
       buzz = false;
 
       if (period == 4 || period == 5) {
@@ -224,7 +239,7 @@ void loop() {
         delay(100);
         NRF_Broadcast();
       }
-      noTone(buzzer);
+      //noTone(buzzer);
       buzz = false;
     }
 
@@ -272,6 +287,8 @@ void loop() {
         con_HScore();//HomeScore Button is Pressed
         con_GScore();//GuestScore Button is Pressed
         con_BallPos();//BallPos Button is Pressed
+        con_HTout();//Home TimeOut Button is Pressed
+        con_GTout();//Guest TimeOut Button is Pressed
       } else if (winner_avail == true) {
         con_Buzzer();//Buzzer Button is Pressed
       }
@@ -313,7 +330,7 @@ void NRF_Broadcast() {
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((millis() - last_millis) >= 60) {
+  if ((millis() - last_millis) >= 40) {
     last_millis = millis();
     TimeMil--;
     SC_mil--;
