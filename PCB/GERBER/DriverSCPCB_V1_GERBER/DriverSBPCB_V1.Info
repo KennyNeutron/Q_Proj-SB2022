@@ -1,0 +1,27 @@
+CAM output for current project DriverSBPCB_V1.T3001
+Output on 23. Aug 2022, 16:53h
+Current project created using TARGET 13.4.0.51 smart
+Output created using PCBout V13.4.0.51
+DELIVERY ADDRESS:
+  
+  
+  
+  GB- 
+  Tel: 
+  FAX: 
+  eMail: 
+Size of PCB: 151.745 mm x 63.17 mm
+
+Description of created files as follows:
+
+DriverSBPCB_V1.Top = 16 = Copper top L2   ( *.Top )
+DriverSBPCB_V1.Bot = 2 = Copper bottom L1   ( *.Bot )
+DriverSBPCB_V1.Tool = drill tool list
+DriverSBPCB_V1.Drill = Galvanised drills
+DriverSBPCB_V1.Outline = 23 = PCB outline   ( *.Outline )
+DriverSBPCB_V1.StopTop = 18 = Solder stop mask top   ( *.StopTop )
+DriverSBPCB_V1.StopBot = 4 = Solder stop mask bottom   ( *.StopBot )
+DriverSBPCB_V1.PosiTop = 21 = Placement print top   ( *.PosiTop )
+DriverSBPCB_V1.Apr = TARGET 3001! aperture list
+DriverSBPCB_V1.Whl = Eagle compatible aperture list
+
