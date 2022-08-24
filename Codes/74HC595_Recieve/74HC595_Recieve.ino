@@ -12,29 +12,32 @@ const byte address[6] = "00001";
 #define srclk 6   //clk
 
 
-int GTime_Min_Tens = 0;
-int GTime_Min_Ones = 0;
-int GTime_Sec_Tens = 0;
-int GTime_Sec_Ones = 0;
-int GTime_Millis = 0;
-int SC_Tens = 0;
-int SC_Ones = 0;
-int SC_millis;
+byte GTime_Min_Tens = 0;
+byte GTime_Min_Ones = 0;
+byte GTime_Sec_Tens = 0;
+byte GTime_Sec_Ones = 0;
+byte GTime_Millis = 0;
+byte SC_Tens = 0;
+byte SC_Ones = 0;
+byte SC_millis;
 
-int HScore_Hund = 0;
-int HScore_Tens = 0;
-int HScore_Ones = 6;
-int GScore_Hund = 0;
-int GScore_Tens = 0;
-int GScore_Ones = 0;
 
-int HFoul = 0;
-int GFoul = 0;
-int HTOut = 0;
-int GTOut = 0;
+byte HomeScore = 0;
+byte GuestScore = 0;
+byte HScore_Hund = 0;
+byte HScore_Tens = 0;
+byte HScore_Ones = 6;
+byte GScore_Hund = 0;
+byte GScore_Tens = 0;
+byte GScore_Ones = 0;
 
-int Period = 1;
-int BallPos = 0;
+byte HFoul = 0;
+byte GFoul = 0;
+byte HTOut = 0;
+byte GTOut = 0;
+
+byte Period = 1;
+byte BallPos = 0;
 
 void setup() {
   pinMode(ser, OUTPUT);
@@ -48,32 +51,32 @@ void setup() {
 
   //printSEG(8);
 
-  //Serial.begin(115200);
-  //Serial.println("START");
+  Serial.begin(115200);
+  Serial.println("START");
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MAX);
   radio.startListening();
   delay(1000);
 
-  printSEG(SC_Tens);
-  printSEG(SC_Ones);
+  printSEG0(SC_Tens);
+  printSEG0(SC_Ones);
 
-  printSEG(GTime_Min_Tens);
-  printSEG(GTime_Min_Ones);
-  printSEG(GTime_Sec_Tens);
-  printSEG(GTime_Sec_Ones);
+  printSEG0(GTime_Min_Tens);
+  printSEG0(GTime_Min_Ones);
+  printSEG0(GTime_Sec_Tens);
+  printSEG0(GTime_Sec_Ones);
 
-  printSEG(HScore_Tens);
-  printSEG(HScore_Ones);
+  printSEG0(HScore_Tens);
+  printSEG0(HScore_Ones);
 
-  printSEG(GScore_Tens);
-  printSEG(GScore_Ones);
-  printSEG(Period);
-  printSEG(HFoul);
-  printSEG(GFoul);
-  printSEG(HTOut);
-  printSEG(GTOut);
+  printSEG0(GScore_Tens);
+  printSEG0(GScore_Ones);
+  printSEG0(Period);
+  printSEG0(HFoul);
+  printSEG0(GFoul);
+  printSEG0(HTOut);
+  printSEG0(GTOut);
 }
 
 void loop() {
@@ -89,11 +92,19 @@ void loop() {
     //    }
     //    delay(50);
     if (text[0] == 'A' && text[6] == 'B') {
-      int TimeMin = int(text[1]);
-      int TimeSec = int(text[2]);
-      int TimeMil = int(text[3]);
-      int SCSec = int(text[4]);
-      int SCMil = int(text[5]);
+      byte TimeMin = int(text[1]);
+      byte TimeSec = int(text[2]);
+      byte TimeMil = int(text[3]);
+      byte SCSec = int(text[4]);
+      byte SCMil = int(text[5]);
+
+      Serial.println("text[0]:" + String(text[0]));
+      Serial.println("text[1]:" + String(int(text[1])));
+      Serial.println("text[2]:" + String(int(text[2])));
+      Serial.println("text[3]:" + String(int(text[3])));
+      Serial.println("text[4]:" + String(int(text[4])));
+      Serial.println("text[5]:" + String(int(text[5])));
+      Serial.println("text[6]:" + String(text[6]));
 
       GTime_Min_Tens = TimeMin / 10;
       GTime_Min_Ones = TimeMin % 10;
@@ -114,11 +125,21 @@ void loop() {
       //printSEG(sc_millis);
 
     } else if (text[0] == 'C' && text[6] == 'D') {
-      int BPZ = int(text[1]);
-      int HomeFoul = int(text[2]);
-      int GuestFoul = int(text[3]);
-      int HomeScore = int(text[4]);
-      int GuestScore = int(text[5]);
+
+      Serial.println("text[0]:" + String(text[0]));
+      Serial.println("text[1]:" + String(int(text[1])));
+      Serial.println("text[2]:" + String(int(text[2])));
+      Serial.println("text[3]:" + String(int(text[3])));
+      Serial.println("text[4]:" + String(byte(text[4])));
+      Serial.println("text[5]:" + String(byte(text[5])));
+      Serial.println("text[6]:" + String(text[6]));
+
+      byte BPZ = byte(text[1]);
+      byte HGFoul = byte(text[2]);
+      byte HGTOut = byte(text[3]);
+      HomeScore = byte(text[4]);
+      GuestScore = byte(text[5]);
+
 
       HScore_Hund = HomeScore / 100;
       HScore_Tens = (HomeScore % 100) / 10;
@@ -128,76 +149,81 @@ void loop() {
       GScore_Tens = (GuestScore % 100) / 10;
       GScore_Ones = GuestScore % 10;
 
-      HFoul = HomeFoul;
-      GFoul = GuestFoul;
+      if (HGFoul ==110) {
+        HFoul=10;
+        GFoul=10;
+      }else if(HGFoul>=200){
+        HFoul=HGFoul-200;
+        GFoul=10;
+      }else {
+        HFoul = HGFoul / 10;
+        GFoul = HGFoul % 10;
+      }
 
-      //BallPos = BPZ % 10;
-      Period = (BPZ %100)/10;
+      HTOut = HGTOut / 10;
+      GTOut = HGTOut % 10;
+
+      BallPos = BPZ / 100;
+      Period = (BPZ % 100) / 10;
+
+      //Serial.println("BPZ:" + String(BPZ));
+      //Serial.println("BP:" + String(BallPos));
     }
-    
-  }
-
-    printSEG(GTOut);
-    printSEG(HTOut);
-    printSEG(GFoul);
-    printSEG(HFoul);
-    printSEG(Period);
-    printSEG(GScore_Ones);
-    printSEG(GScore_Tens);
-    printSEG(HScore_Ones);
-    printSEG(HScore_Tens);
-    printSEG(GTime_Sec_Ones);
-    printSEG(GTime_Sec_Tens);
-    printSEG(GTime_Min_Ones);
-    printSEG(GTime_Min_Tens);
-    printSEG(SC_Ones);
-    printSEG(SC_Tens);
-    
-    rclk_pulse();
-}
-
-void printSEG(int segNum) {
-  switch (segNum) {
-    case 0:
-      shiftOut(ser, srclk, LSBFIRST, 0b00000011);
-      break;
-    case 1:
-      shiftOut(ser, srclk, LSBFIRST, 0b10011111);
-      break;
-    case 2:
-      shiftOut(ser, srclk, LSBFIRST, 0b00100101);
-      break;
-    case 3:
-      shiftOut(ser, srclk, LSBFIRST, 0b00001101);
-      break;
-    case 4:
-      shiftOut(ser, srclk, LSBFIRST, 0b10011001);
-      break;
-    case 5:
-      shiftOut(ser, srclk, LSBFIRST, 0b01001001);
-      break;
-    case 6:
-      shiftOut(ser, srclk, LSBFIRST, 0b01000001);
-      break;
-    case 7:
-      shiftOut(ser, srclk, LSBFIRST, 0b00011111);
-      break;
-    case 8:
-      shiftOut(ser, srclk, LSBFIRST, 0b00000001);
-      break;
-    case 9:
-      shiftOut(ser, srclk, LSBFIRST, 0b00001001);
-      break;
 
   }
-}
 
-void srclk_pulse() {
-  digitalWrite(srclk, 1);
-  digitalWrite(srclk, 0);
-}
+  printSEG0(GTOut);
+  printSEG0(HTOut);
+  printSEG0(GFoul);
+  printSEG0(HFoul);
 
-void rclk_pulse() {
-  digitalWrite(rclk, 1);
-  digitalWrite(rclk, 0);
+  if (Period == 5) {
+    printSEG0(11);
+  } else {
+    printSEG0(Period);
+  }
+
+  if (GScore_Hund == 1) {
+    printSEG1(GScore_Ones);
+    printSEG1(GScore_Tens);
+  } else {
+    if (GuestScore < 10) {
+      printSEG0(GScore_Ones);
+      printSEG0(12);
+    } else {
+      printSEG0(GScore_Ones);
+      printSEG0(GScore_Tens);
+    }
+  }
+
+  if (HScore_Hund == 1) {
+    printSEG1(HScore_Ones);
+    printSEG1(HScore_Tens);
+  } else {
+    if (HomeScore < 10) {
+      printSEG0(HScore_Ones);
+      printSEG0(12);
+    } else {
+      printSEG0(HScore_Ones);
+      printSEG0(HScore_Tens);
+    }
+  }
+
+  if (BallPos == 2) {
+    printSEG1(GTime_Sec_Ones);
+  } else {
+    printSEG0(GTime_Sec_Ones);
+  }
+
+  printSEG0(GTime_Sec_Tens);
+  printSEG0(GTime_Min_Ones);
+  if (BallPos == 1) {
+    printSEG1(GTime_Min_Tens);
+  } else {
+    printSEG0(GTime_Min_Tens);
+  }
+  printSEG0(SC_Ones);
+  printSEG0(SC_Tens);
+
+  rclk_pulse();
 }

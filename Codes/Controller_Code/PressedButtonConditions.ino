@@ -60,11 +60,21 @@ void con_ShotClock() {
   if (ShotClock_IsPressed == true && !flag_SCToggle) {
     if (menu_screen == 0) {
       if (!status_shift()) {
-        SC_sec = 14;
-        SC_mil = 0;
+        if (flag_start == true) {
+          SC_sec = 14;
+          SC_mil = 7;
+        } else {
+          SC_sec = 14;
+          SC_mil = 0;
+        }
       } else {
-        SC_sec = 24;
-        SC_mil = 0;
+        if (flag_start == true) {
+          SC_sec = 24;
+          SC_mil = 5;
+        } else {
+          SC_sec = 24;
+          SC_mil = 0;
+        }
       }
     } else if (menu_screen == 1) {
       menu_ToSet++;
@@ -123,8 +133,8 @@ void con_HomeFoul() {
 
     flag_HFoulToggle = true;
 
-    if (HomeFoul >= 10 && HomeFoul != 255) {
-      HomeFoul = 9;
+    if (HomeFoul > 10 && HomeFoul != 255) {
+      HomeFoul = 10;
     } else if (HomeFoul == 255) {
       HomeFoul = 0;
     }
@@ -143,8 +153,8 @@ void con_GuestFoul() {
 
     flag_GFoulToggle = true;
 
-    if (GuestFoul >= 10 && GuestFoul != 255) {
-      GuestFoul = 9;
+    if (GuestFoul > 10 && GuestFoul != 255) {
+      GuestFoul = 10;
     } else if (GuestFoul == 255) {
       GuestFoul = 0;
     }
@@ -180,10 +190,10 @@ void con_GTout() {
     }
     flag_GToutToggle = true;
 
-    if(GuestTout>=10 && GuestTout!=255){
-      GuestTout=9;
-    }else if(GuestTout==255){
-      GuestTout=0;
+    if (GuestTout >= 10 && GuestTout != 255) {
+      GuestTout = 9;
+    } else if (GuestTout == 255) {
+      GuestTout = 0;
     }
   }
 }

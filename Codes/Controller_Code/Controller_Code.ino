@@ -133,7 +133,7 @@ void setup() {
   //u8g.setHardwareBackup(u8g_backup_avr_spi);
 
   // assign default color value
-  //Serial.begin(115200);
+  Serial.begin(115200);
 
   radio.begin();
   radio.openWritingPipe(address);
@@ -220,6 +220,8 @@ void loop() {
         SC_mil = 0;
         HomeFoul = 0;
         GuestFoul = 0;
+        HomeTout=0;
+        GuestTout=0;
         BallPos = 0;
       } else if (period == 5 && !winner_avail) {
         TimeMin = 5;
@@ -229,6 +231,8 @@ void loop() {
         SC_mil = 0;
         HomeFoul = 0;
         GuestFoul = 0;
+        HomeTout=0;
+        GuestTout=0;
         BallPos = 0;
       }
 

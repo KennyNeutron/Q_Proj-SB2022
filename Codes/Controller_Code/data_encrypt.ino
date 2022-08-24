@@ -1,69 +1,57 @@
 void DataEncrypt_Time() {
   ch_message[0] = 'A';        //HEADER
-  if (TimeMin == 0) {
-    ch_message[1] = 250;  //Will Represent '0'
-  } else {
-    ch_message[1] = TimeMin;    //GameTime MINUTE
-  }
+  ch_message[1] = TimeMin;    //GameTime MINUTE
 
-  if (TimeSec == 0) {
-    ch_message[2] = 250;  //Will Represent '0'
-  } else {
-    ch_message[2] = TimeSec;    //GameTime SECOND
-  }
+  ch_message[2] = TimeSec;    //GameTime SECOND
 
-  if (TimeMil == 0) {
-    ch_message[3] = 250;  //Will Represent '0'
-  } else {
-    ch_message[3] = TimeMil;    //GameTime MILLIS
-  }
+  ch_message[3] = TimeMil;    //GameTime MILLIS
 
-  if (SC_sec == 0) {
-    ch_message[4] = 250;  //Will Represent '0'
-  } else {
-    ch_message[4] = SC_sec;    //ShotClock SECOND
-  }
 
-  if (SC_mil == 0) {
-    ch_message[5] = 250;  //Will Represent '0'
-  } else {
-    ch_message[5] = SC_mil;    //ShotClock MILLIS
-  }
+  ch_message[4] = SC_sec;    //ShotClock SECOND
+
+
+  ch_message[5] = SC_mil;    //ShotClock MILLIS
+
 
   ch_message[6] = 'B';        //FOOTER
 }
 
 void DataEncrypt_Other() {
   byte BPZ = 0; //Ballpos Period Buzzer
+  byte HGFoul = 0; //Home & Guest Foul
+  byte HGTOut = 0; //Home & Guest TOut
   BPZ = (BallPos * 100) + (period * 10) + buzz;
 
-  ch_message[0] = 'C';            //HEADER
-
-  ch_message[1] = BPZ;            //Ball poss. Period Buzzer
-
-  if (HomeFoul == 0) {
-    ch_message[2] = 250;          //Will Represent '0'
-  } else {
-    ch_message[2] = HomeFoul;     //Home Foul
+  if (HomeFoul < 10 && GuestFoul == 10) {
+    HGFoul = HomeFoul + 200;
+  } else if (HomeFoul == 10 && GuestFoul < 10) {
+    HGFoul = (HomeFoul * 10) + GuestFoul;
+  }else if(HomeFoul<10 && GuestFoul<10){
+    HGFoul = (HomeFoul * 10) + GuestFoul;
+  }else if(HomeFoul == 10 && GuestFoul== 10){
+    HGFoul = (HomeFoul * 10) + GuestFoul;
   }
 
-  if (GuestFoul == 0) {
-    ch_message[3] = 250;          //Will Represent '0'
-  } else {
-    ch_message[3] = GuestFoul;     //Guest Foul
-  }
+  Serial.println("HF:"+String(HomeFoul));
+  Serial.println("GF:"+String(GuestFoul));
+  Serial.println("HGF:"+String(HGFoul));
 
-  if (HomeScore == 0) {
-    ch_message[4] = 250;          //Will Represent '0'
-  } else {
-    ch_message[4] = HomeScore;     //Home Score
-  }
+  HGTOut = (HomeTout * 10) + GuestTout;
 
-  if (GuestScore == 0) {
-    ch_message[5] = 250;          //Will Represent '0'
-  } else {
-    ch_message[5] = GuestScore;     //Guest Score
-  }
+
+  ch_message[0] = 'C';         //HEADER
+
+  ch_message[1] = BPZ;         //Ball poss. Period Buzzer
+
+  ch_message[2] = HGFoul;     //Home & Guest Foul
+
+
+  ch_message[3] = HGTOut;     //Home & Guest Tout
+
+  ch_message[4] = HomeScore;     //Home Score
+
+  ch_message[5] = GuestScore;     //Guest Score
+
   ch_message[6] = 'D';        //FOOTER
 
 }

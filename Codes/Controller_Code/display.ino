@@ -56,8 +56,8 @@ void MenuScreen_MainSB() {
   char ch_Period[2] = "";
   char ch_HFoul[2] = "";
   char ch_GFoul[2] = "";
-  char ch_HTout[2]="";
-  char ch_GTout[2]="";
+  char ch_HTout[2] = "";
+  char ch_GTout[2] = "";
   char ch_HScore[4] = "";
   char ch_GScore[4] = "";
 
@@ -79,8 +79,17 @@ void MenuScreen_MainSB() {
 
   sprintf(ch_Period, "%d", period);
 
-  sprintf(ch_HFoul, "%d", HomeFoul);
-  sprintf(ch_GFoul, "%d", GuestFoul);
+  if (HomeFoul == 10) {
+    ch_HFoul[0] = 'P';
+  } else {
+    sprintf(ch_HFoul, "%d", HomeFoul);
+  }
+
+  if (GuestFoul == 10) {
+    ch_GFoul[0] = 'P';
+  } else {
+    sprintf(ch_GFoul, "%d", GuestFoul);
+  }
 
   sprintf(ch_HTout, "%d", HomeTout);
   sprintf(ch_GTout, "%d", GuestTout);
@@ -96,7 +105,7 @@ void MenuScreen_MainSB() {
   u8g.drawStr(115, 39, ch_GFoul);   //GuestFoul
 
   u8g.drawStr(29, 39, ch_HTout);    //Home Time Out
-  u8g.drawStr(88,39, ch_GTout);    //Guest Time Out
+  u8g.drawStr(88, 39, ch_GTout);   //Guest Time Out
 
   u8g.drawStr(2, 64, ch_HScore);    //HomeScore
 
@@ -166,7 +175,7 @@ void MenuScreen_SetSB() {
   u8g.drawStr(86, 14, ch_ShotClock);  //Shotclock
 
 
- 
+
 
 
   if (period == 5) {
