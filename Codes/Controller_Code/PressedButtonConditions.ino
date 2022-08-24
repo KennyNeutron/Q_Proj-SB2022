@@ -15,7 +15,7 @@ void con_StartStop() {
     flag_SSToggle = true;
     ms_counter = 0;
 ss_exit:
-    delay(5);
+    delayMicroseconds(1);
   } else if (StartStop_IsPressed == true && flag_SSToggle == true && status_shift() && !flag_ChangeMenuToggle) {
     if (status_StartStop()) {
       StartStop_IsPressed = false;

@@ -7,7 +7,7 @@ void buttonUpdate() {
 
   if (!ShotClock_IsPressed && !status_ShotClock()) {
     if (menu_screen == 0) {
-      delay(10);
+      //delay(10);
     }
     if (!status_ShotClock()) {
       ShotClock_IsPressed = true;

@@ -12,8 +12,8 @@ const byte address[6] = "00001";
 
 #include "U8glib.h"
 
-//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST);	// Fast I2C / TWI
-U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_FAST); // Fast I2C / TWI
+//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 //#define u8g_logo_width 38
 //#define u8g_logo_height 24
 ////static unsigned char u8g_logo_bits[] = {
@@ -55,8 +55,8 @@ bool ShotClock_IsPressed = false;
 bool StartStop_IsPressed = false;
 bool BallPos_IsPressed = false;
 
-bool HTout_IsPressed=false;
-bool GTout_IsPressed=false;
+bool HTout_IsPressed = false;
+bool GTout_IsPressed = false;
 
 bool WINNER = true; //true= HOME WINNER     false= GUEST WINNER     NOTE: only if the game is doene
 bool winner_avail = false; //goes true if a winner is declared;
@@ -78,7 +78,7 @@ byte HomeFoul = 0; //HomeFoul
 byte GuestFoul = 0; //GuestFoul
 
 byte HomeTout = 0; //Home TimeOut
-byte GuestTout=0; // Guest TimeOut
+byte GuestTout = 0; // Guest TimeOut
 
 byte period = 1; //Period or Quarter
 
@@ -100,8 +100,8 @@ bool flag_ChangeMenuToggle = false;
 bool flag_WinnerBlink = false;
 bool flag_NewGame = false;
 
-bool flag_HToutToggle=false;
-bool flag_GToutToggle=false;
+bool flag_HToutToggle = false;
+bool flag_GToutToggle = false;
 
 
 
@@ -122,6 +122,8 @@ char ch_message[7] = "FFFFFF";
 
 uint16_t tcounter = 0;
 
+bool loading_sc = true;
+
 void setup() {
   // flip screen, if required
   // u8g.setRot180();
@@ -133,7 +135,8 @@ void setup() {
   //u8g.setHardwareBackup(u8g_backup_avr_spi);
 
   // assign default color value
-  Serial.begin(115200);
+  //Serial.begin(115200);
+  //Serial.println("START");
 
   radio.begin();
   radio.openWritingPipe(address);
@@ -170,27 +173,37 @@ void setup() {
   delay(10);
 
   //tone(buzzer, 1000);
-  delay(500);
+  delay(3000);
   //noTone(buzzer);
 
-
-  //Serial.println("START");
-  last_millis = millis();
+  last_millis = micros();
 }
 
 void loop() {
+  if (loading_sc == true) {
+
+    loading_screen();
+    loading_sc = false;
+  }
+  if (flag_NewGame == true) {
+    SC_sec = 24;
+    SC_mil = 0;
+    flag_NewGame = false;
+  }
   if (SC_sec == 0 && SC_mil == 0 && flag_SCDisplayed == true && !flag_QFinishToggle && !winner_avail) {
     //tone(buzzer, 1000);
-    buzz = true;
+    
     flag_SCDisplayed = false;
-    SC_sec = 24;
+    
 
     if (flag_QFinish == true && !winner_avail) {
-      for (int a = 0; a <= 60; a++) {
+      for (int a = 0; a <= 30; a++) {
         delay(100);
+        buzz=true;
         NRF_Broadcast();
       }
       //noTone(buzzer);
+      SC_sec = 24;
       buzz = false;
 
       if (period == 4 || period == 5) {
@@ -220,8 +233,8 @@ void loop() {
         SC_mil = 0;
         HomeFoul = 0;
         GuestFoul = 0;
-        HomeTout=0;
-        GuestTout=0;
+        HomeTout = 0;
+        GuestTout = 0;
         BallPos = 0;
       } else if (period == 5 && !winner_avail) {
         TimeMin = 5;
@@ -231,8 +244,8 @@ void loop() {
         SC_mil = 0;
         HomeFoul = 0;
         GuestFoul = 0;
-        HomeTout=0;
-        GuestTout=0;
+        HomeTout = 0;
+        GuestTout = 0;
         BallPos = 0;
       }
 
@@ -240,7 +253,7 @@ void loop() {
       flag_QFinishToggle = false;
     } else {
       for (int a = 0; a <= 30; a++) {
-        delay(100);
+        //delay(100);
         NRF_Broadcast();
       }
       //noTone(buzzer);
@@ -276,9 +289,9 @@ void loop() {
 
   buttonUpdate();
 
-  if (flag_start == true) {
-    TimerStarted();
-  }
+  //  if (flag_start == true) {
+  //    TimerStarted();
+  //  }
 
   switch (menu_screen) {
     case 0:
@@ -319,11 +332,21 @@ void draw() {
 }
 
 void NRF_Broadcast() {
-  DataEncrypt_Time();
-  //Serial.print(ch_message);
+  if (menu_screen == 1) {
+    DataEncrypt_SET_Time();
+  } else {
+    DataEncrypt_Time();
+  }
+
+  //Serial.println("MS:"+String(menu_screen));
+  //Serial.println(ch_message);
   radio.write(&ch_message, sizeof(ch_message));
 
-  DataEncrypt_Other();
+  if (!winner_avail) {
+    DataEncrypt_Other();
+  } else {
+    DataEncrypt_Other_WINNER();
+  }
   //Serial.print(ch_message);
   radio.write(&ch_message, sizeof(ch_message));
   //  delay(5);
@@ -334,8 +357,8 @@ void NRF_Broadcast() {
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((millis() - last_millis) >= 40) {
-    last_millis = millis();
+  if ((micros() - last_millis) >= 62500) {
+    last_millis = micros();
     TimeMil--;
     SC_mil--;
   }
@@ -383,6 +406,9 @@ void reset_AllVariables() {
 
   HomeFoul = 0; //HomeFoul
   GuestFoul = 0; //GuestFoul
+
+  HomeTout = 0; //Home TOut
+  GuestTout = 0; //Guesr TOut
 
   period = 1; //Period or Quarter
 

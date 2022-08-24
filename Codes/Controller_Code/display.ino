@@ -101,11 +101,11 @@ void MenuScreen_MainSB() {
   u8g.drawStr(2, 14, ch_GameTime);    //GameTime
   u8g.drawStr(85, 14, ch_ShotClock);  //Shotclock
 
-  u8g.drawStr(2, 39, ch_HFoul);     //HomeFoul
-  u8g.drawStr(115, 39, ch_GFoul);   //GuestFoul
+  u8g.drawStr(29, 39, ch_HFoul);     //HomeFoul
+  u8g.drawStr(88, 39, ch_GFoul);   //GuestFoul
 
-  u8g.drawStr(29, 39, ch_HTout);    //Home Time Out
-  u8g.drawStr(88, 39, ch_GTout);   //Guest Time Out
+  u8g.drawStr(2, 39, ch_HTout);    //Home Time Out
+  u8g.drawStr(115, 39, ch_GTout);   //Guest Time Out
 
   u8g.drawStr(2, 64, ch_HScore);    //HomeScore
 
@@ -142,6 +142,8 @@ void MenuScreen_SetSB() {
   char ch_Period[2] = "";
   char ch_HFoul[2] = "";
   char ch_GFoul[2] = "";
+  char ch_HTout[2] = "";
+  char ch_GTout[2] = "";
   char ch_HScore[4] = "";
   char ch_GScore[4] = "";
 
@@ -166,15 +168,16 @@ void MenuScreen_SetSB() {
   sprintf(ch_HFoul, "%d", HomeFoul);
   sprintf(ch_GFoul, "%d", GuestFoul);
 
+  sprintf(ch_HTout, "%d", HomeTout);
+  sprintf(ch_GTout, "%d", GuestTout);
+
   sprintf(ch_HScore, "%d", HomeScore);
   sprintf(ch_GScore, "%d", GuestScore);
 
 
   u8g.setFont(u8g_font_gdb14r);
-  u8g.drawStr(0, 14, ch_GameTime);    //GameTime
-  u8g.drawStr(86, 14, ch_ShotClock);  //Shotclock
-
-
+  u8g.drawStr(2, 14, ch_GameTime);    //GameTime
+  u8g.drawStr(85, 14, ch_ShotClock);  //Shotclock
 
 
 
@@ -198,6 +201,8 @@ void MenuScreen_WinnerAvailable() {
   char ch_Period[2] = "";
   char ch_HFoul[2] = "";
   char ch_GFoul[2] = "";
+  char ch_HTout[2] = "";
+  char ch_GTout[2] = "";
   char ch_HScore[4] = "";
   char ch_GScore[4] = "";
 
@@ -222,23 +227,29 @@ void MenuScreen_WinnerAvailable() {
   sprintf(ch_HFoul, "%d", HomeFoul);
   sprintf(ch_GFoul, "%d", GuestFoul);
 
+  sprintf(ch_HTout, "%d", HomeTout);
+  sprintf(ch_GTout, "%d", GuestTout);
+
   sprintf(ch_HScore, "%d", HomeScore);
   sprintf(ch_GScore, "%d", GuestScore);
 
   u8g.setFont(u8g_font_gdb14r);
-  u8g.drawStr(0, 14, ch_GameTime);    //GameTime
-  u8g.drawStr(86, 14, ch_ShotClock);  //Shotclock
+  u8g.drawStr(2, 14, ch_GameTime);    //GameTime
+  u8g.drawStr(85, 14, ch_ShotClock);  //Shotclock
 
-  u8g.drawStr(0, 39, ch_HFoul);     //HomeFoul
-  u8g.drawStr(117, 39, ch_GFoul);   //GuestFoul
+  u8g.drawStr(29, 39, ch_HFoul);     //HomeFoul
+  u8g.drawStr(88, 39, ch_GFoul);   //GuestFoul
+
+  u8g.drawStr(2, 39, ch_HTout);    //Home Time Out
+  u8g.drawStr(115, 39, ch_GTout);   //Guest Time Out
 
   if (WINNER) {
     u8g.setFont(u8g_font_helvR08);
-    u8g.drawStr(33, 48, "HOME WINS!");
+    u8g.drawStr(33, 50, "HOME WINS!");
     u8g.setFont(u8g_font_gdb14r);
   } else if (!WINNER) {
     u8g.setFont(u8g_font_helvR08);
-    u8g.drawStr(31, 48, "GUEST WINS!");
+    u8g.drawStr(31, 50, "GUEST WINS!");
     u8g.setFont(u8g_font_gdb14r);
   }
 
@@ -249,7 +260,7 @@ void MenuScreen_WinnerAvailable() {
   }
 
   if (flag_WinnerBlink == true) {
-    u8g.drawStr(0, 64, ch_HScore);    //HomeScore
+    u8g.drawStr(2, 64, ch_HScore);    //HomeScore
 
     if (String(GuestScore).length() == 1) {
       u8g.drawStr(117, 64, ch_GScore);   //GuestScore
@@ -261,7 +272,7 @@ void MenuScreen_WinnerAvailable() {
 
   } else {
     if (!WINNER) {
-      u8g.drawStr(0, 64, ch_HScore);    //HomeScore
+      u8g.drawStr(2, 64, ch_HScore);    //HomeScore
     } else if (WINNER) {
       if (String(GuestScore).length() == 1) {
         u8g.drawStr(117, 64, ch_GScore);   //GuestScore
@@ -291,4 +302,14 @@ void MenuScreen_WinnerAvailable() {
     flag_SCDisplayed = true;
   }
 
+}
+
+
+void loading_screen() {
+
+  u8g.setFont(u8g_font_gdb14r);
+  u8g.drawStr(51, 37, "5AS");      //Period
+
+  u8g.setFont(u8g_font_helvR08);
+  u8g.drawStr(31, 50, "ScoreBoards");
 }

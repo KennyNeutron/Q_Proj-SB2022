@@ -7,10 +7,18 @@
 RF24 radio(9, 10); // CE, CSN
 const byte address[6] = "00001";
 
+#define buzzPin 4
+
 #define ser   5   //d_in
 #define rclk  7   //lat
 #define srclk 6   //clk
 
+
+byte TimeMin = 0;
+byte TimeSec = 0;
+byte TimeMil = 0;
+byte SCSec = 0;
+byte SCMil = 0;
 
 byte GTime_Min_Tens = 0;
 byte GTime_Min_Ones = 0;
@@ -39,7 +47,18 @@ byte GTOut = 0;
 byte Period = 1;
 byte BallPos = 0;
 
+bool SET = false;
+bool SET_toggle = false;
+byte toSET = 0;
+
+bool winner_avail = false;
+bool WINNER = false; //WINNER true=HOME  |   false=GUEST
+byte win_toggle = 0;
+
+bool buzzer=false;
+
 void setup() {
+  pinMode(buzzPin, OUTPUT);
   pinMode(ser, OUTPUT);
   pinMode(rclk, OUTPUT);
   pinMode(srclk, OUTPUT);
@@ -50,6 +69,7 @@ void setup() {
   digitalWrite(srclk, 0);
 
   //printSEG(8);
+  digitalWrite(buzzPin,0);
 
   Serial.begin(115200);
   Serial.println("START");
@@ -91,21 +111,30 @@ void loop() {
     //      Serial.println(a + ":" + String(data));
     //    }
     //    delay(50);
+    /*
+        Serial.println("text[0]:" + String(text[0]));
+        Serial.println("text[1]:" + String(int(text[1])));
+        Serial.println("text[2]:" + String(int(text[2])));
+        Serial.println("text[3]:" + String(int(text[3])));
+        Serial.println("text[4]:" + String(int(text[4])));
+        Serial.println("text[5]:" + String(int(text[5])));
+        Serial.println("text[6]:" + String(text[6]));*/
     if (text[0] == 'A' && text[6] == 'B') {
-      byte TimeMin = int(text[1]);
-      byte TimeSec = int(text[2]);
-      byte TimeMil = int(text[3]);
-      byte SCSec = int(text[4]);
-      byte SCMil = int(text[5]);
+      TimeMin = byte(text[1]);
+      TimeSec = byte(text[2]);
+      TimeMil = byte(text[3]);
+      SCSec = byte(text[4]);
+      SCMil = byte(text[5]);
 
-      Serial.println("text[0]:" + String(text[0]));
-      Serial.println("text[1]:" + String(int(text[1])));
-      Serial.println("text[2]:" + String(int(text[2])));
-      Serial.println("text[3]:" + String(int(text[3])));
-      Serial.println("text[4]:" + String(int(text[4])));
-      Serial.println("text[5]:" + String(int(text[5])));
-      Serial.println("text[6]:" + String(text[6]));
-
+      /*
+        Serial.println("text[0]:" + String(text[0]));
+        Serial.println("text[1]:" + String(int(text[1])));
+        Serial.println("text[2]:" + String(int(text[2])));
+        Serial.println("text[3]:" + String(int(text[3])));
+        Serial.println("text[4]:" + String(int(text[4])));
+        Serial.println("text[5]:" + String(int(text[5])));
+        Serial.println("text[6]:" + String(text[6]));
+      */
       GTime_Min_Tens = TimeMin / 10;
       GTime_Min_Ones = TimeMin % 10;
       GTime_Sec_Tens = TimeSec / 10;
@@ -125,15 +154,16 @@ void loop() {
       //printSEG(sc_millis);
 
     } else if (text[0] == 'C' && text[6] == 'D') {
-
-      Serial.println("text[0]:" + String(text[0]));
-      Serial.println("text[1]:" + String(int(text[1])));
-      Serial.println("text[2]:" + String(int(text[2])));
-      Serial.println("text[3]:" + String(int(text[3])));
-      Serial.println("text[4]:" + String(byte(text[4])));
-      Serial.println("text[5]:" + String(byte(text[5])));
-      Serial.println("text[6]:" + String(text[6]));
-
+      winner_avail == false;
+      /*
+        Serial.println("text[0]:" + String(text[0]));
+        Serial.println("text[1]:" + String(int(text[1])));
+        Serial.println("text[2]:" + String(int(text[2])));
+        Serial.println("text[3]:" + String(int(text[3])));
+        Serial.println("text[4]:" + String(byte(text[4])));
+        Serial.println("text[5]:" + String(byte(text[5])));
+        Serial.println("text[6]:" + String(text[6]));
+      */
       byte BPZ = byte(text[1]);
       byte HGFoul = byte(text[2]);
       byte HGTOut = byte(text[3]);
@@ -149,13 +179,13 @@ void loop() {
       GScore_Tens = (GuestScore % 100) / 10;
       GScore_Ones = GuestScore % 10;
 
-      if (HGFoul ==110) {
-        HFoul=10;
-        GFoul=10;
-      }else if(HGFoul>=200){
-        HFoul=HGFoul-200;
-        GFoul=10;
-      }else {
+      if (HGFoul == 110) {
+        HFoul = 10;
+        GFoul = 10;
+      } else if (HGFoul >= 200) {
+        HFoul = HGFoul - 200;
+        GFoul = 10;
+      } else {
         HFoul = HGFoul / 10;
         GFoul = HGFoul % 10;
       }
@@ -166,64 +196,124 @@ void loop() {
       BallPos = BPZ / 100;
       Period = (BPZ % 100) / 10;
 
-      //Serial.println("BPZ:" + String(BPZ));
+      byte bz= BPZ%10;
+
+      if(bz==1){
+        buzzer=true;
+      }else{
+        buzzer=false;
+      }
+
+      Serial.println("BPZ:" + String(BPZ));
       //Serial.println("BP:" + String(BallPos));
+    } else if (text[0] == 'W' && text[6] == 'X') {
+
+      Serial.println("SET");
+
+      /*
+        Serial.println("text[0]:" + String(text[0]));
+        Serial.println("text[1]:" + String(int(text[1])));
+        Serial.println("text[2]:" + String(int(text[2])));
+        Serial.println("text[3]:" + String(int(text[3])));
+        Serial.println("text[4]:" + String(byte(text[4])));
+        Serial.println("text[5]:" + String(byte(text[5])));
+        Serial.println("text[6]:" + String(text[6]));
+      */
+      TimeMin = byte(text[1]);
+      TimeSec = byte(text[2]);
+      TimeMil = byte(text[3]);
+      SCSec = byte(text[4]);
+      //SCMil = int(text[5]);
+      toSET = byte(text[5]);
+      SET = true;
+
+      GTime_Min_Tens = TimeMin / 10;
+      GTime_Min_Ones = TimeMin % 10;
+      GTime_Sec_Tens = TimeSec / 10;
+      GTime_Sec_Ones = TimeSec % 10;
+
+      SC_Tens = SCSec / 10;
+      SC_Ones = SCSec % 10;
+      SC_millis = SCMil;
+
+      GTime_Min_Tens = TimeMin / 10;
+      GTime_Min_Ones = TimeMin % 10;
+      GTime_Sec_Tens = TimeSec / 10;
+      GTime_Sec_Ones = TimeSec % 10;
+
+      SC_Tens = SCSec / 10;
+      SC_Ones = SCSec % 10;
+      SC_millis = SCMil;
+
+      
+    } else if (text[0] == 'Y' && text[6] == 'Z') {
+      Serial.println("WINNER");
+      winner_avail = true;
+      byte BPZ = byte(text[1]);
+      byte HGFoul = byte(text[2]);
+      byte HGTOut = byte(text[3]);
+      HomeScore = byte(text[4]);
+      GuestScore = byte(text[5]);
+
+
+      if (HomeScore > GuestScore) {
+        WINNER = true;
+      } else if (HomeScore < GuestScore) {
+        WINNER = false;
+      }
+
+      HScore_Hund = HomeScore / 100;
+      HScore_Tens = (HomeScore % 100) / 10;
+      HScore_Ones = HomeScore % 10;
+
+      GScore_Hund = GuestScore / 100;
+      GScore_Tens = (GuestScore % 100) / 10;
+      GScore_Ones = GuestScore % 10;
+
+      if (HGFoul == 110) {
+        HFoul = 10;
+        GFoul = 10;
+      } else if (HGFoul >= 200) {
+        HFoul = HGFoul - 200;
+        GFoul = 10;
+      } else {
+        HFoul = HGFoul / 10;
+        GFoul = HGFoul % 10;
+      }
+
+      HTOut = HGTOut / 10;
+      GTOut = HGTOut % 10;
+
+      BallPos = BPZ / 100;
+      Period = (BPZ % 100) / 10;
     }
 
   }
 
-  printSEG0(GTOut);
-  printSEG0(HTOut);
-  printSEG0(GFoul);
-  printSEG0(HFoul);
+  print_display();
 
-  if (Period == 5) {
-    printSEG0(11);
-  } else {
-    printSEG0(Period);
+  Serial.println("BUZZER:"+String(buzzer));
+
+  /*
+    Serial.println("SET:" + String(SET));
+    Serial.println("toSET:" + String(toSET));
+    Serial.println("SET_tog:" + String(SET_toggle));
+  */
+  if (winner_avail == true) {
+    delay(300);
+    win_toggle++;
   }
 
-  if (GScore_Hund == 1) {
-    printSEG1(GScore_Ones);
-    printSEG1(GScore_Tens);
-  } else {
-    if (GuestScore < 10) {
-      printSEG0(GScore_Ones);
-      printSEG0(12);
-    } else {
-      printSEG0(GScore_Ones);
-      printSEG0(GScore_Tens);
-    }
+  if (SET == true) {
+    delay(150);
+    SET_toggle = !SET_toggle;
   }
+  winner_avail = false;
+  SET = false;
 
-  if (HScore_Hund == 1) {
-    printSEG1(HScore_Ones);
-    printSEG1(HScore_Tens);
-  } else {
-    if (HomeScore < 10) {
-      printSEG0(HScore_Ones);
-      printSEG0(12);
-    } else {
-      printSEG0(HScore_Ones);
-      printSEG0(HScore_Tens);
-    }
+  if(buzzer==true){
+  digitalWrite(buzzPin,1);
+  }else{
+  digitalWrite(buzzPin,0);
   }
-
-  if (BallPos == 2) {
-    printSEG1(GTime_Sec_Ones);
-  } else {
-    printSEG0(GTime_Sec_Ones);
-  }
-
-  printSEG0(GTime_Sec_Tens);
-  printSEG0(GTime_Min_Ones);
-  if (BallPos == 1) {
-    printSEG1(GTime_Min_Tens);
-  } else {
-    printSEG0(GTime_Min_Tens);
-  }
-  printSEG0(SC_Ones);
-  printSEG0(SC_Tens);
-
-  rclk_pulse();
 }

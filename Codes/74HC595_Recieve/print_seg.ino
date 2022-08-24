@@ -76,13 +76,13 @@ void printSEG1(int segNum) {
       shiftOut(ser, srclk, LSBFIRST, 0b00001000);
       break;
     case 10: //P
-      shiftOut(ser, srclk, LSBFIRST, 0b00110001);
+      shiftOut(ser, srclk, LSBFIRST, 0b00110000);
       break;
     case 11: //O
-      shiftOut(ser, srclk, LSBFIRST, 0b11000101);
+      shiftOut(ser, srclk, LSBFIRST, 0b11000100);
       break;
     case 12: //OFF
-      shiftOut(ser, srclk, LSBFIRST, 0b11111111);
+      shiftOut(ser, srclk, LSBFIRST, 0b11111110);
       break;
   }
 }
