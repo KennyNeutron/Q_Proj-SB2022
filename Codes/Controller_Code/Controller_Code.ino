@@ -1,9 +1,12 @@
 //SB Cont by: Kenny Neutron
 //07-30-2022
 #include "Arduino.h"
+#include <EEPROM.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+
+
 
 RF24 radio(9, 10); // CE, CSN
 const byte address[6] = "00001";
@@ -112,12 +115,16 @@ bool flag_GToutToggle = false;
 bool flag_r12Toggle = false;
 
 bool flag_buzz = false;
+bool flag_buzz2 = false;
+bool flag_buzzQ = false;
 
 
 uint32_t last_millis = 0;
 uint32_t last_millis2 = 0;
 uint32_t SC_last_millis = 0;
 uint32_t SC_cnt = 0;
+
+uint32_t batt_last_millis = 0;
 
 uint32_t last_millisWIN = 0; //for blinking (winner);
 uint16_t blink_period = 500; //blink period
@@ -137,7 +144,17 @@ bool loading_sc = true;
 
 int batt_val = 0;
 
+int batt_percent = 100;
+
+int BuzzCount = 0;
+
+bool flag_battSUB = false;
+
 void setup() {
+  //EEPROM.write(2, 100);
+
+  batt_percent = EEPROM.read(2);
+
   // flip screen, if required
   // u8g.setRot180();
 
@@ -148,8 +165,8 @@ void setup() {
   //u8g.setHardwareBackup(u8g_backup_avr_spi);
 
   // assign default color value
-  Serial.begin(115200);
-  Serial.println("START");
+  //Serial.begin(115200);
+  //Serial.println("START");
 
   radio.begin();
   radio.openWritingPipe(address);
@@ -195,12 +212,14 @@ void setup() {
   //noTone(buzzer);
 
   last_millis = micros();
+  batt_last_millis = millis();
 }
 
 void loop() {
   //batt_val=analogRead(batt_in);
   //Serial.println("Batt:"+String(batt_val));
   //Serial.println("R12: "+String(analogRead(pb_r12)));
+  //Serial.println("Batt:"+String(batt_percent));
 
   if (loading_sc == true) {
 
@@ -213,15 +232,40 @@ void loop() {
   //Dito mag BUZZ
   if (SC_sec == 0 && SC_mil == 0 && !flag_buzz) {
     SC_cnt = 0;
-    flag_buzz = true;
+    if (TimeMin > 0 || TimeSec > 0 || TimeMil > 0) {
+      flag_buzz = true;
+    }
   }
 
-  Serial.println("SCCNt: " + String(SC_cnt));
+  if (SC_sec == 0 && SC_mil == 0 && TimeMin == 0 && TimeSec == 0 && TimeMil == 0 && flag_buzzQ == false) {
+    SC_cnt = 0;
+    BuzzCount = 0;
+    //Serial.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    flag_buzzQ = true;
+    flag_buzz2 = true;
+  }
+
+
+  if (flag_buzzQ == true) {
+    //Serial.println("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
+    buzz = true;
+    BuzzCount++;
+
+    if (BuzzCount >= 40) {
+      flag_buzzQ = false;
+      flag_buzz = false;
+      buzz = false;
+      QuarterDone();
+    }
+  }
+
+  //Serial.println("bz2:"+String(flag_buzzQ));
+  //Serial.println("SCCNt: " + String(BuzzCount));
 
   if (flag_buzz == true) {
     buzz = true;
     SC_cnt++;
-    if (SC_cnt >= 10) {
+    if (SC_cnt >= 20) {
       flag_buzz = false;
       buzz = false;
       SC_sec = 24;
@@ -231,85 +275,14 @@ void loop() {
 
 
 
+
+
+
   if (flag_NewGame == true) {
     SC_sec = 24;
     SC_mil = 0;
     flag_NewGame = false;
   }
-  if (SC_sec == 0 && SC_mil == 0 && flag_SCDisplayed == true && !flag_QFinishToggle && !winner_avail) {
-    //tone(buzzer, 1000);
-
-    flag_SCDisplayed = false;
-
-    if (flag_QFinish == true && !winner_avail) {
-
-      //Dito mag buzzer pag 0 na ang time
-
-      for (int a = 0; a <= 3; a++) {
-        //delay(100);
-        //buzz=true;
-        NRF_Broadcast();
-      }
-      //noTone(buzzer);
-      SC_sec = 24;
-      //buzz = false;
-
-      if (period == 4 || period == 5) {
-        if (HomeScore != GuestScore) {
-          //There is a WINNER!
-          if (HomeScore > GuestScore) {
-            //Serial.println("HOME WINS!");
-            WINNER = true;
-          } else if (GuestScore > HomeScore) {
-            //Serial.println("GUEST WINS!");
-            WINNER = false;
-          }
-          winner_avail = true;
-        } else if (HomeScore == GuestScore) {
-          //It's a TIE! Go for OT
-          period = 5;
-        }
-      }
-
-      flag_QFinishToggle = true;
-      if (period != 5 && !winner_avail) {
-        period++;
-        TimeMin = 10;
-        TimeSec = 0;
-        TimeMil = 0;
-        SC_sec = 24;
-        SC_mil = 0;
-        HomeFoul = 0;
-        GuestFoul = 0;
-        HomeTout = 0;
-        GuestTout = 0;
-        BallPos = 0;
-      } else if (period == 5 && !winner_avail) {
-        TimeMin = 5;
-        TimeSec = 0;
-        TimeMil = 0;
-        SC_sec = 24;
-        SC_mil = 0;
-        HomeFoul = 0;
-        GuestFoul = 0;
-        HomeTout = 0;
-        GuestTout = 0;
-        BallPos = 0;
-      }
-
-      flag_QFinish = false;
-      flag_QFinishToggle = false;
-    } else {
-      for (int a = 0; a <= 30; a++) {
-        //delay(100);
-        NRF_Broadcast();
-      }
-      //noTone(buzzer);
-      //buzz = false;
-    }
-
-  }
-
 
   last_millis2 = millis();
 
@@ -370,6 +343,17 @@ void loop() {
 
   }
 
+
+  if ((millis()-batt_last_millis) >= 2880000) {
+    batt_percent -= 10;
+    if (batt_percent <= 0) {
+      batt_percent = 0;
+    }
+    //Serial.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
+    EEPROM.write(3, batt_percent);
+    batt_last_millis = millis();
+  }
+
 }
 
 void draw() {
@@ -406,7 +390,7 @@ void NRF_Broadcast() {
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((micros() - last_millis) >= 62500) {
+  if ((micros() - last_millis) >= 75000) {
     last_millis = micros();
     TimeMil--;
     SC_mil--;
@@ -464,4 +448,81 @@ void reset_AllVariables() {
   BallPos = 0; //BallPosession 0=NoPossession 1=Home 2=Guest
 
   winner_avail = false;
+}
+
+
+void QuarterDone() {
+  //tone(buzzer, 1000);
+
+  flag_SCDisplayed = false;
+
+  if (flag_QFinish == true && !winner_avail) {
+
+    //Dito mag buzzer pag 0 na ang time
+
+    for (int a = 0; a <= 3; a++) {
+      //delay(100);
+      //buzz=true;
+      NRF_Broadcast();
+    }
+    //noTone(buzzer);
+    //SC_sec = 24;
+    //buzz = false;
+
+    if (period == 4 || period == 5) {
+      if (HomeScore != GuestScore) {
+        //There is a WINNER!
+        if (HomeScore > GuestScore) {
+          //Serial.println("HOME WINS!");
+          WINNER = true;
+        } else if (GuestScore > HomeScore) {
+          //Serial.println("GUEST WINS!");
+          WINNER = false;
+        }
+        winner_avail = true;
+      } else if (HomeScore == GuestScore) {
+        //It's a TIE! Go for OT
+        period = 5;
+      }
+    }
+
+    flag_QFinishToggle = true;
+    if (period != 5 && !winner_avail) {
+      period++;
+      TimeMin = 10;
+      TimeSec = 0;
+      TimeMil = 0;
+      SC_sec = 24;
+      SC_mil = 0;
+      HomeFoul = 0;
+      GuestFoul = 0;
+      HomeTout = 0;
+      GuestTout = 0;
+      BallPos = 0;
+    } else if (period == 5 && !winner_avail) {
+      TimeMin = 5;
+      TimeSec = 0;
+      TimeMil = 0;
+      SC_sec = 24;
+      SC_mil = 0;
+      HomeFoul = 0;
+      GuestFoul = 0;
+      HomeTout = 0;
+      GuestTout = 0;
+      BallPos = 0;
+    }
+
+    flag_QFinish = false;
+    flag_QFinishToggle = false;
+  }
+  //    else {
+  //      for (int a = 0; a <= 30; a++) {
+  //        //delay(100);
+  //        NRF_Broadcast();
+  //      }
+  //      //noTone(buzzer);
+  //      //buzz = false;
+  //    }
+
+
 }

@@ -92,6 +92,8 @@ bool status_r12() {
       delay(20);
       r12_val = analogRead(pb_r12);
       if (r12_val == 0) {
+        delay(50);
+
         flag_buzz = false;
         buzz = false;
         return false;

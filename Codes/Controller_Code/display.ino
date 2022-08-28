@@ -130,6 +130,71 @@ void MenuScreen_MainSB() {
   }
 
 
+  //Serial.println("Batt:"+String(batt_percent));
+  //u8g.drawBox(55,50,10,5);
+  u8g.drawLine(57, 50, 69, 50);
+  u8g.drawLine(57, 56, 69, 56);
+  u8g.drawLine(57, 50, 57, 56);
+  u8g.drawLine(69, 50, 69, 56);
+  u8g.drawLine(71, 51, 71, 55);
+
+  if (batt_percent == 20) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+  } else if (batt_percent == 30) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+  } else if (batt_percent == 40) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+  } else if (batt_percent == 50) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+  } else if (batt_percent == 60) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+    u8g.drawLine(63, 52, 63, 54); //60%
+  } else if (batt_percent == 70) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+    u8g.drawLine(63, 52, 63, 54); //60%
+    u8g.drawLine(64, 52, 64, 54); //70%
+  } else if (batt_percent == 80) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+    u8g.drawLine(63, 52, 63, 54); //60%
+    u8g.drawLine(64, 52, 64, 54); //70%
+    u8g.drawLine(65, 52, 65, 54); //80%
+  } else if (batt_percent == 90) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+    u8g.drawLine(63, 52, 63, 54); //60%
+    u8g.drawLine(64, 52, 64, 54); //70%
+    u8g.drawLine(65, 52, 65, 54); //80%
+    u8g.drawLine(66, 52, 66, 54); //90%
+  } else if (batt_percent == 100) {
+    u8g.drawLine(59, 52, 59, 54); //20%
+    u8g.drawLine(60, 52, 60, 54); //30%
+    u8g.drawLine(61, 52, 61, 54); //40%;
+    u8g.drawLine(62, 52, 62, 54); //50%
+    u8g.drawLine(63, 52, 63, 54); //60%
+    u8g.drawLine(64, 52, 64, 54); //70%
+    u8g.drawLine(65, 52, 65, 54); //80%
+    u8g.drawLine(66, 52, 66, 54); //90%
+    u8g.drawLine(67, 52, 67, 54); //100%
+  }
+
+
   if (SC_mil == 0 && SC_sec == 0) {
     flag_SCDisplayed = true;
   }
