@@ -11,16 +11,18 @@ void buttonUpdate() {
     }
     if (!status_ShotClock()) {
       ShotClock_IsPressed = true;
+      flag_buzz = false;
+      buzz = false;
     }
   }
 
   if (!status_buzzer()) {
     buzzer_IsPressed = true;
-    buzz=true;
+    buzz = true;
   } else {
     buzzer_IsPressed = false;
     ms_buzzer = 0;
-    buzz=false;
+    buzz = false;
   }
 
   if (!status_HFoul() && !flag_HFoulToggle) {
@@ -58,20 +60,49 @@ void buttonUpdate() {
     flag_BallPosToggle = false;
   }
 
-  if(!status_HTout() && !flag_HToutToggle){
-    HTout_IsPressed=true;
-  }else if(status_HTout()){
-    HTout_IsPressed=false;
-    flag_HToutToggle=false;
+  if (!status_HTout() && !flag_HToutToggle) {
+    HTout_IsPressed = true;
+  } else if (status_HTout()) {
+    HTout_IsPressed = false;
+    flag_HToutToggle = false;
   }
 
-  if(!status_GTout() && !flag_GToutToggle){
-    GTout_IsPressed=true;
-  }else if(status_GTout()){
-    GTout_IsPressed=false;
-    flag_GToutToggle=false;
+  if (!status_GTout() && !flag_GToutToggle) {
+    GTout_IsPressed = true;
+  } else if (status_GTout()) {
+    GTout_IsPressed = false;
+    flag_GToutToggle = false;
   }
 
+  if (!status_r12() && !flag_r12Toggle) {
+    r12_IsPressed = true;
+  } else if (status_r12()) {
+    r12_IsPressed = false;
+    flag_r12Toggle = false;
+  }
+
+}
+
+bool status_r12() {
+  int r12_val = analogRead(pb_r12);
+  if (r12_val == 0) {
+    delay(20);
+    r12_val = analogRead(pb_r12);
+    if (r12_val == 0) {
+      delay(20);
+      r12_val = analogRead(pb_r12);
+      if (r12_val == 0) {
+        flag_buzz = false;
+        buzz = false;
+        return false;
+      } else {
+        return true;
+      }
+
+    } else {
+      return true;
+    }
+  }
 }
 
 
@@ -91,11 +122,11 @@ bool status_GFoul() {
   return digitalRead(pb_GFoul);
 }
 
-bool status_HTout(){
+bool status_HTout() {
   return digitalRead(pb_HTout);
 }
 
-bool status_GTout(){
+bool status_GTout() {
   return digitalRead(pb_GTout);
 }
 

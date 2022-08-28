@@ -1,6 +1,6 @@
 //SB Cont by: Kenny Neutron
 //07-30-2022
-
+#include "Arduino.h"
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -43,6 +43,10 @@ U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_F
 #define pb_HTout      2
 #define pb_GTout      3
 
+#define pb_r12        A6
+
+#define batt_in     A7
+
 //Outputs
 //#define buzzer 3
 
@@ -57,6 +61,8 @@ bool BallPos_IsPressed = false;
 
 bool HTout_IsPressed = false;
 bool GTout_IsPressed = false;
+
+bool r12_IsPressed = false;
 
 bool WINNER = true; //true= HOME WINNER     false= GUEST WINNER     NOTE: only if the game is doene
 bool winner_avail = false; //goes true if a winner is declared;
@@ -103,10 +109,15 @@ bool flag_NewGame = false;
 bool flag_HToutToggle = false;
 bool flag_GToutToggle = false;
 
+bool flag_r12Toggle = false;
+
+bool flag_buzz = false;
 
 
 uint32_t last_millis = 0;
 uint32_t last_millis2 = 0;
+uint32_t SC_last_millis = 0;
+uint32_t SC_cnt = 0;
 
 uint32_t last_millisWIN = 0; //for blinking (winner);
 uint16_t blink_period = 500; //blink period
@@ -124,6 +135,8 @@ uint16_t tcounter = 0;
 
 bool loading_sc = true;
 
+int batt_val = 0;
+
 void setup() {
   // flip screen, if required
   // u8g.setRot180();
@@ -135,8 +148,8 @@ void setup() {
   //u8g.setHardwareBackup(u8g_backup_avr_spi);
 
   // assign default color value
-  //Serial.begin(115200);
-  //Serial.println("START");
+  Serial.begin(115200);
+  Serial.println("START");
 
   radio.begin();
   radio.openWritingPipe(address);
@@ -156,6 +169,8 @@ void setup() {
     u8g.setHiColorByRGB(255, 255, 255);
   }
 
+  //analogReference(INTERNAL);
+
   pinMode(pb_shift, INPUT_PULLUP);
   pinMode(pb_buzzer, INPUT_PULLUP);
   pinMode(pb_HFoul, INPUT_PULLUP);
@@ -169,8 +184,11 @@ void setup() {
   pinMode(pb_HTout, INPUT_PULLUP);
   pinMode(pb_GTout, INPUT_PULLUP);
 
+  pinMode(pb_r12, INPUT);
+
+  pinMode(batt_in, INPUT_PULLUP);
+
   //pinMode(buzzer, OUTPUT);
-  delay(10);
 
   //tone(buzzer, 1000);
   delay(3000);
@@ -180,11 +198,39 @@ void setup() {
 }
 
 void loop() {
+  //batt_val=analogRead(batt_in);
+  //Serial.println("Batt:"+String(batt_val));
+  //Serial.println("R12: "+String(analogRead(pb_r12)));
+
   if (loading_sc == true) {
 
     loading_screen();
     loading_sc = false;
   }
+
+
+
+  //Dito mag BUZZ
+  if (SC_sec == 0 && SC_mil == 0 && !flag_buzz) {
+    SC_cnt = 0;
+    flag_buzz = true;
+  }
+
+  Serial.println("SCCNt: " + String(SC_cnt));
+
+  if (flag_buzz == true) {
+    buzz = true;
+    SC_cnt++;
+    if (SC_cnt >= 10) {
+      flag_buzz = false;
+      buzz = false;
+      SC_sec = 24;
+    }
+    NRF_Broadcast();
+  }
+
+
+
   if (flag_NewGame == true) {
     SC_sec = 24;
     SC_mil = 0;
@@ -192,19 +238,21 @@ void loop() {
   }
   if (SC_sec == 0 && SC_mil == 0 && flag_SCDisplayed == true && !flag_QFinishToggle && !winner_avail) {
     //tone(buzzer, 1000);
-    
+
     flag_SCDisplayed = false;
-    
 
     if (flag_QFinish == true && !winner_avail) {
-      for (int a = 0; a <= 30; a++) {
-        delay(100);
-        buzz=true;
+
+      //Dito mag buzzer pag 0 na ang time
+
+      for (int a = 0; a <= 3; a++) {
+        //delay(100);
+        //buzz=true;
         NRF_Broadcast();
       }
       //noTone(buzzer);
       SC_sec = 24;
-      buzz = false;
+      //buzz = false;
 
       if (period == 4 || period == 5) {
         if (HomeScore != GuestScore) {
@@ -257,7 +305,7 @@ void loop() {
         NRF_Broadcast();
       }
       //noTone(buzzer);
-      buzz = false;
+      //buzz = false;
     }
 
   }
@@ -306,6 +354,7 @@ void loop() {
         con_BallPos();//BallPos Button is Pressed
         con_HTout();//Home TimeOut Button is Pressed
         con_GTout();//Guest TimeOut Button is Pressed
+        con_R12();//Reset 12 is Pressed
       } else if (winner_avail == true) {
         con_Buzzer();//Buzzer Button is Pressed
       }

@@ -201,7 +201,7 @@ void loop() {
       if(bz==1){
         buzzer=true;
       }else{
-        buzzer=false;
+        buzzer= false;
       }
 
       Serial.println("BPZ:" + String(BPZ));

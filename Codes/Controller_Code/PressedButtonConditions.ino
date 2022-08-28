@@ -54,6 +54,24 @@ ss_exit:
 }
 
 
+//R12
+void con_R12() {
+  if (r12_IsPressed == true && !flag_r12Toggle) {
+    if (flag_start == true) {
+      SC_sec = 12;
+      SC_mil = 7;
+    } else {
+      SC_sec = 12;
+      SC_mil = 0;
+    }
+    flag_r12Toggle=true;
+  }else if(r12_IsPressed == true && flag_r12Toggle==true){
+    if(status_r12()){
+      r12_IsPressed=false;
+      flag_r12Toggle=false;
+    }
+  }
+}
 
 //ShotClock Button is Pressed
 void con_ShotClock() {
