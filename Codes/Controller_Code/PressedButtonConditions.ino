@@ -58,10 +58,10 @@ ss_exit:
 void con_R12() {
   if (r12_IsPressed == true && !flag_r12Toggle) {
     if (flag_start == true) {
-      SC_sec = 12;
+      SC_sec = 24;
       SC_mil = 7;
     } else {
-      SC_sec = 12;
+      SC_sec = 24;
       SC_mil = 0;
     }
     flag_r12Toggle=true;
@@ -79,10 +79,10 @@ void con_ShotClock() {
     if (menu_screen == 0) {
       if (!status_shift()) {
         if (flag_start == true) {
-          SC_sec = 14;
+          SC_sec = 12;
           SC_mil = 7;
         } else {
-          SC_sec = 14;
+          SC_sec = 12;
           SC_mil = 0;
         }
       } else {

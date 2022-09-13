@@ -1,5 +1,10 @@
 //SB Cont by: Kenny Neutron
 //07-30-2022
+
+
+//LAST UPDATE: 09-13-2022 @ 10:06AM
+
+
 #include "Arduino.h"
 #include <EEPROM.h>
 #include <SPI.h>
@@ -153,6 +158,12 @@ bool flag_battSUB = false;
 void setup() {
   //EEPROM.write(2, 100);
 
+  if(EEPROM.read(1)!=1){
+    EEPROM.write(2, 100);
+    EEPROM.write(1,1);
+  }
+
+  
   batt_percent = EEPROM.read(2);
 
   // flip screen, if required
