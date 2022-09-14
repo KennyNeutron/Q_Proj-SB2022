@@ -61,6 +61,8 @@ void MenuScreen_MainSB() {
   char ch_HScore[4] = "";
   char ch_GScore[4] = "";
 
+  char ch_BattPercent[4] = "";
+
   if (TimeMin >= 10 && TimeSec >= 10) {
     sprintf(ch_GameTime, "%d:%d.%d", TimeMin, TimeSec, TimeMil);
   } else if (TimeMin < 10 && TimeSec >= 10) {
@@ -97,6 +99,16 @@ void MenuScreen_MainSB() {
   sprintf(ch_HScore, "%d", HomeScore);
   sprintf(ch_GScore, "%d", GuestScore);
 
+
+  if (batt_percent > 100) {
+    batt_percent = 100;
+  } else if (batt_percent < 0) {
+    batt_percent = 0;
+  }
+
+  sprintf(ch_BattPercent, "%d", batt_percent);
+
+
   u8g.setFont(u8g_font_gdb14r);
   u8g.drawStr(2, 14, ch_GameTime);    //GameTime
   u8g.drawStr(85, 14, ch_ShotClock);  //Shotclock
@@ -132,40 +144,42 @@ void MenuScreen_MainSB() {
 
   //Serial.println("Batt:"+String(batt_percent));
   //u8g.drawBox(55,50,10,5);
-  u8g.drawLine(57, 50, 69, 50);
-  u8g.drawLine(57, 56, 69, 56);
-  u8g.drawLine(57, 50, 57, 56);
-  u8g.drawLine(69, 50, 69, 56);
-  u8g.drawLine(71, 51, 71, 55);
+  u8g.drawLine(53, 49, 72, 49); //H
+  u8g.drawLine(53, 60, 72, 60); //H
+  u8g.drawLine(53, 49, 53, 60); //V
+  u8g.drawLine(72, 49, 72, 60); //V
 
-  if (batt_percent == 20) {
+  u8g.drawLine(74, 51, 74, 58);
+  /*
+
+    if (batt_percent == 20) {
     u8g.drawLine(59, 52, 59, 54); //20%
-  } else if (batt_percent == 30) {
+    } else if (batt_percent == 30) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
-  } else if (batt_percent == 40) {
+    } else if (batt_percent == 40) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
-  } else if (batt_percent == 50) {
+    } else if (batt_percent == 50) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
     u8g.drawLine(62, 52, 62, 54); //50%
-  } else if (batt_percent == 60) {
+    } else if (batt_percent == 60) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
     u8g.drawLine(62, 52, 62, 54); //50%
     u8g.drawLine(63, 52, 63, 54); //60%
-  } else if (batt_percent == 70) {
+    } else if (batt_percent == 70) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
     u8g.drawLine(62, 52, 62, 54); //50%
     u8g.drawLine(63, 52, 63, 54); //60%
     u8g.drawLine(64, 52, 64, 54); //70%
-  } else if (batt_percent == 80) {
+    } else if (batt_percent == 80) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
@@ -173,7 +187,7 @@ void MenuScreen_MainSB() {
     u8g.drawLine(63, 52, 63, 54); //60%
     u8g.drawLine(64, 52, 64, 54); //70%
     u8g.drawLine(65, 52, 65, 54); //80%
-  } else if (batt_percent == 90) {
+    } else if (batt_percent == 90) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
@@ -182,7 +196,7 @@ void MenuScreen_MainSB() {
     u8g.drawLine(64, 52, 64, 54); //70%
     u8g.drawLine(65, 52, 65, 54); //80%
     u8g.drawLine(66, 52, 66, 54); //90%
-  } else if (batt_percent == 100) {
+    } else if (batt_percent == 100) {
     u8g.drawLine(59, 52, 59, 54); //20%
     u8g.drawLine(60, 52, 60, 54); //30%
     u8g.drawLine(61, 52, 61, 54); //40%;
@@ -192,11 +206,31 @@ void MenuScreen_MainSB() {
     u8g.drawLine(65, 52, 65, 54); //80%
     u8g.drawLine(66, 52, 66, 54); //90%
     u8g.drawLine(67, 52, 67, 54); //100%
-  }
+    }
+  */
 
 
   if (SC_mil == 0 && SC_sec == 0) {
     flag_SCDisplayed = true;
+  }
+
+
+
+  //Display Battery Percent
+
+  u8g.setFont(u8g_font_helvR08);
+  if (digitalRead(charging) == 1) {
+    u8g.drawStr(60, 59, "C");
+    charging_toggle=true;
+  } else {
+    if (batt_percent == 100) {
+      u8g.drawStr(54, 59, ch_BattPercent);
+    } else if (batt_percent < 100 && batt_percent > 9) {
+      u8g.drawStr(57, 59, ch_BattPercent);
+    } else if (batt_percent < 10) {
+
+      u8g.drawStr(60, 59, ch_BattPercent);
+    }
   }
 
 }
@@ -373,7 +407,7 @@ void MenuScreen_WinnerAvailable() {
 void loading_screen() {
 
   u8g.setFont(u8g_font_gdb14r);
-  u8g.drawStr(51, 37, "5AS");      //Period
+  u8g.drawStr(40, 37, "5A'S");      //Period
 
   u8g.setFont(u8g_font_helvR08);
   u8g.drawStr(31, 50, "ScoreBoards");

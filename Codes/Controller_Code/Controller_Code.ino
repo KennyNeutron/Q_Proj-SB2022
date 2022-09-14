@@ -2,7 +2,7 @@
 //07-30-2022
 
 
-//LAST UPDATE: 09-13-2022 @ 10:06AM
+//LAST UPDATE: 09-14-2022 @ 10:06AM
 
 
 #include "Arduino.h"
@@ -54,6 +54,8 @@ U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_F
 #define pb_r12        A6
 
 #define batt_in     A7
+
+#define charging  0
 
 //Outputs
 //#define buzzer 3
@@ -130,6 +132,7 @@ uint32_t SC_last_millis = 0;
 uint32_t SC_cnt = 0;
 
 uint32_t batt_last_millis = 0;
+uint32_t loading_last_millis = 0;
 
 uint32_t last_millisWIN = 0; //for blinking (winner);
 uint16_t blink_period = 500; //blink period
@@ -145,9 +148,9 @@ char ch_message[7] = "FFFFFF";
 
 uint16_t tcounter = 0;
 
-bool loading_sc = true;
+bool loading_sc = false;
 
-int batt_val = 0;
+unsigned int batt_val = 0;
 
 int batt_percent = 100;
 
@@ -155,16 +158,20 @@ int BuzzCount = 0;
 
 bool flag_battSUB = false;
 
+bool charging_toggle = false;
+
+
+
 void setup() {
   //EEPROM.write(2, 100);
-
-  if(EEPROM.read(1)!=1){
-    EEPROM.write(2, 100);
-    EEPROM.write(1,1);
-  }
-
-  
-  batt_percent = EEPROM.read(2);
+  //
+  //  if(EEPROM.read(1)!=1){
+  //    EEPROM.write(2, 100);
+  //    EEPROM.write(1,1);
+  //  }
+  //
+  //
+  //  batt_percent = EEPROM.read(2);
 
   // flip screen, if required
   // u8g.setRot180();
@@ -197,7 +204,7 @@ void setup() {
     u8g.setHiColorByRGB(255, 255, 255);
   }
 
-  //analogReference(INTERNAL);
+  analogReference(INTERNAL);
 
   pinMode(pb_shift, INPUT_PULLUP);
   pinMode(pb_buzzer, INPUT_PULLUP);
@@ -215,6 +222,7 @@ void setup() {
   pinMode(pb_r12, INPUT);
 
   pinMode(batt_in, INPUT_PULLUP);
+  pinMode(charging, INPUT);
 
   //pinMode(buzzer, OUTPUT);
 
@@ -222,23 +230,27 @@ void setup() {
   delay(3000);
   //noTone(buzzer);
 
+  batt_val = analogRead(batt_in);
+  batt_percent = (batt_val * 100) / 210;
+
   last_millis = micros();
   batt_last_millis = millis();
+  loading_last_millis = millis();
 }
 
 void loop() {
-  //batt_val=analogRead(batt_in);
+
   //Serial.println("Batt:"+String(batt_val));
   //Serial.println("R12: "+String(analogRead(pb_r12)));
   //Serial.println("Batt:"+String(batt_percent));
 
-  if (loading_sc == true) {
 
-    loading_screen();
-    loading_sc = false;
+  if (digitalRead(charging) == 0 && charging_toggle == true) {
+    delayMicroseconds(100);
+    batt_val = analogRead(batt_in);
+    batt_percent = (batt_val * 100) / 210;
+    charging_toggle = false;
   }
-
-
 
   //Dito mag BUZZ
   if (SC_sec == 0 && SC_mil == 0 && !flag_buzz) {
@@ -354,14 +366,23 @@ void loop() {
 
   }
 
-
-  if ((millis()-batt_last_millis) >= 2880000) {
-    batt_percent -= 10;
-    if (batt_percent <= 0) {
-      batt_percent = 0;
+  /*
+    if ((millis()-batt_last_millis) >= 2880000) {
+      batt_percent -= 10;
+      if (batt_percent <= 0) {
+        batt_percent = 0;
+      }
+      //Serial.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
+      EEPROM.write(3, batt_percent);
+      batt_last_millis = millis();
     }
-    //Serial.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
-    EEPROM.write(3, batt_percent);
+  */
+
+
+  if ((millis() - batt_last_millis) >= 60000) {
+    batt_val = analogRead(batt_in);
+    batt_percent = (batt_val * 100) / 210;
+
     batt_last_millis = millis();
   }
 
@@ -372,7 +393,15 @@ void draw() {
   //u8g.drawXBMP( 0, 0, u8g_logo_width, u8g_logo_height, u8g_logo_bits);
 
   //display_guidelines();
-  display_SB();
+
+  if (loading_sc == false) {
+    if ((millis() - loading_last_millis) > 3000) {
+      loading_sc = true;
+    }
+    loading_screen();
+  } else {
+    display_SB();
+  }
 }
 
 void NRF_Broadcast() {
@@ -401,7 +430,7 @@ void NRF_Broadcast() {
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((micros() - last_millis) >= 65000) {
+  if ((micros() - last_millis) >= 63000) {
     last_millis = micros();
     TimeMil--;
     SC_mil--;
