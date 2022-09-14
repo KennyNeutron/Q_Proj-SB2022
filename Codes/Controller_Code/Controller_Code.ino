@@ -430,7 +430,7 @@ void NRF_Broadcast() {
 
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
-  if ((micros() - last_millis) >= 63000) {
+  if ((micros() - last_millis) >= 70000) {
     last_millis = micros();
     TimeMil--;
     SC_mil--;
