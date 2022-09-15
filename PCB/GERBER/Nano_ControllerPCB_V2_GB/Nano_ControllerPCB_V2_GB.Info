@@ -1,0 +1,30 @@
+CAM output for current project NEW.T3001
+Output on 15. Sep 2022, 15:13h
+Current project created using TARGET 13.4.0.51 smart
+Output created using PCBout V13.4.0.51
+DELIVERY ADDRESS:
+  
+  
+  
+  GB- 
+  Tel: 
+  FAX: 
+  eMail: 
+Size of PCB: 64.023 mm x 55.677 mm
+
+Description of created files as follows:
+
+NEW.Top = 16 = Copper top L2   ( *.Top )
+NEW.Bot = 2 = Copper bottom L1   ( *.Bot )
+NEW.Tool = drill tool list
+NEW.Drill = Galvanised drills
+NEW.Outline = 23 = PCB outline   ( *.Outline )
+NEW.StopTop = 18 = Solder stop mask top   ( *.StopTop )
+NEW.StopBot = 4 = Solder stop mask bottom   ( *.StopBot )
+NEW.PosiTop = 21 = Placement print top   ( *.PosiTop )
+NEW.PasteTop = 19 = Solder paste top   ( *.PasteTop )
+NEW.Apr = TARGET 3001! aperture list
+NEW.Whl = Eagle compatible aperture list
+
+
+Caution: Smallest track is thiner than 0.150mm: (0.127at 11.735 | 20.803)
