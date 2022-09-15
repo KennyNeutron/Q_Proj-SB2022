@@ -410,5 +410,5 @@ void loading_screen() {
   u8g.drawStr(40, 37, "5A'S");      //Period
 
   u8g.setFont(u8g_font_helvR08);
-  u8g.drawStr(31, 50, "ScoreBoards");
+  u8g.drawStr(33, 50, "ScoreBoards");
 }
