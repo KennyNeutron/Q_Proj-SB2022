@@ -56,7 +56,7 @@ U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_NO_ACK | U8G_I2C_OPT_F
 #define batt_in     A7
 
 #define charging  0
-
+#define testpin   1
 //Outputs
 //#define buzzer 3
 
@@ -160,7 +160,8 @@ bool flag_battSUB = false;
 
 bool charging_toggle = false;
 
-
+bool testtoggle = 0;
+unsigned int ISR_TMR = 0;
 
 void setup() {
   //EEPROM.write(2, 100);
@@ -185,6 +186,24 @@ void setup() {
   // assign default color value
   //Serial.begin(115200);
   //Serial.println("START");
+
+  //SETUP INTERRUPT
+  pinMode(testpin, OUTPUT);
+  cli();//stop interrupts
+  //set timer2 interrupt at 8kHz
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  TCCR2B = 0;// same for TCCR2B
+  TCNT2  = 0;//initialize counter value to 0
+  // set compare match register for 8khz increments
+  OCR2A = 249;// = (16*10^6) / (8000*8) - 1 (must be <256)
+  // turn on CTC mode
+  TCCR2A |= (1 << WGM21);
+  // Set CS21 bit for 8 prescaler
+  TCCR2B |= (1 << CS21);
+  // enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+  sei();//allow interrupts
+
 
   radio.begin();
   radio.openWritingPipe(address);
@@ -236,6 +255,50 @@ void setup() {
   last_millis = micros();
   batt_last_millis = millis();
   loading_last_millis = millis();
+}
+
+
+ISR(TIMER2_COMPA_vect) { //timer1 interrupt 8kHz toggles pin 9
+  //generates pulse wave of frequency 8kHz/2 = 4kHz (takes two cycles for full wave- toggle high then toggle low)
+
+  if (flag_start == true) {
+    ISR_TMR++;
+
+    if (ISR_TMR >= 800) {
+      TimeMil--;
+      SC_mil--;
+      ISR_TMR=0;
+    }
+  }
+
+
+  if (TimeMil == 255) {
+    TimeSec--;
+    TimeMil = 9;
+  }
+
+  if (TimeSec == 255) {
+    TimeMin--;
+    TimeSec = 59;
+  }
+
+  if (TimeMin == 0 && TimeSec == 0 && TimeMil == 0) {
+    flag_start = false;
+    flag_QFinish = true;
+  }
+
+  if (SC_sec == 255) {
+    SC_sec = 24;
+  }
+  if (SC_mil == 255) {
+    toggle1HZ = !toggle1HZ;
+    SC_sec--;
+    SC_mil = 9;
+  }
+
+  if (SC_sec == 0 && SC_mil == 0) {
+    flag_start = false;
+  }
 }
 
 void loop() {
@@ -315,9 +378,12 @@ void loop() {
   } while ( u8g.nextPage() );
   //Serial.println("diff: " + String(millis() - last_millis2));
 
-  if (flag_start == true) {
+
+  /*
+    if (flag_start == true) {
     TimerStarted();
-  }
+    }
+  */
 
   if (TimeMin == 0 && TimeSec < SC_sec && menu_screen == 0) {
     SC_sec = TimeSec;
@@ -327,9 +393,12 @@ void loop() {
 
   NRF_Broadcast();
 
-  if (flag_start == true) {
+  //TIME SUBTRACT?
+  /*
+    if (flag_start == true) {
     TimerStarted();
-  }
+    }
+  */
 
   buttonUpdate();
 
@@ -428,6 +497,8 @@ void NRF_Broadcast() {
   //  radio.write(&ch_message, sizeof(ch_message));
 }
 
+
+/*
 void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
   if ((micros() - last_millis) >= 70000) {
@@ -464,7 +535,7 @@ void TimerStarted() {
     flag_start = false;
   }
 }
-
+*/
 
 void reset_AllVariables() {
   TimeMin = 10; //GameTime Minute

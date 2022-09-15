@@ -13,6 +13,7 @@ void con_StartStop() {
       }
     }
     flag_SSToggle = true;
+    ISR_TMR=0;
     ms_counter = 0;
 ss_exit:
     delayMicroseconds(1);
@@ -50,7 +51,6 @@ ss_exit:
     flag_start = false;
     //delay(10);
   }
-
 }
 
 
@@ -64,11 +64,11 @@ void con_R12() {
       SC_sec = 14;
       SC_mil = 0;
     }
-    flag_r12Toggle=true;
-  }else if(r12_IsPressed == true && flag_r12Toggle==true){
-    if(status_r12()){
-      r12_IsPressed=false;
-      flag_r12Toggle=false;
+    flag_r12Toggle = true;
+  } else if (r12_IsPressed == true && flag_r12Toggle == true) {
+    if (status_r12()) {
+      r12_IsPressed = false;
+      flag_r12Toggle = false;
     }
   }
 }
