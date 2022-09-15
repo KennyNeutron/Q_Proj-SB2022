@@ -188,7 +188,7 @@ void setup() {
   //Serial.println("START");
 
   //SETUP INTERRUPT
-  pinMode(testpin, OUTPUT);
+  //pinMode(testpin, OUTPUT);
   cli();//stop interrupts
   //set timer2 interrupt at 8kHz
   TCCR2A = 0;// set entire TCCR2A register to 0
@@ -263,11 +263,10 @@ ISR(TIMER2_COMPA_vect) { //timer1 interrupt 8kHz toggles pin 9
 
   if (flag_start == true) {
     ISR_TMR++;
-
     if (ISR_TMR >= 800) {
       TimeMil--;
       SC_mil--;
-      ISR_TMR=0;
+      ISR_TMR = 0;
     }
   }
 
@@ -275,6 +274,9 @@ ISR(TIMER2_COMPA_vect) { //timer1 interrupt 8kHz toggles pin 9
   if (TimeMil == 255) {
     TimeSec--;
     TimeMil = 9;
+    //1 HZ SIGNAL
+    //testtoggle = !testtoggle;
+    //digitalWrite(testpin, testtoggle);
   }
 
   if (TimeSec == 255) {
@@ -499,7 +501,7 @@ void NRF_Broadcast() {
 
 
 /*
-void TimerStarted() {
+  void TimerStarted() {
   //Serial.println("act: " + String(millis() - last_millis));
   if ((micros() - last_millis) >= 70000) {
     last_millis = micros();
@@ -534,7 +536,7 @@ void TimerStarted() {
   if (SC_sec == 0 && SC_mil == 0) {
     flag_start = false;
   }
-}
+  }
 */
 
 void reset_AllVariables() {
