@@ -469,7 +469,9 @@ void draw() {
     if ((millis() - loading_last_millis) > 3000) {
       loading_sc = true;
     }
-    loading_screen();
+    loading_screen(); 
+    batt_val = analogRead(batt_in);
+    batt_percent = (batt_val * 100) / 210;
   } else {
     display_SB();
   }
