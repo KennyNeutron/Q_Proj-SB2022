@@ -308,7 +308,8 @@ void loop() {
   //Serial.println("Batt:"+String(batt_val));
   //Serial.println("R12: "+String(analogRead(pb_r12)));
   //Serial.println("Batt:"+String(batt_percent));
-
+  while(1){
+  }
 
   if (digitalRead(charging) == 0 && charging_toggle == true) {
     delayMicroseconds(100);
